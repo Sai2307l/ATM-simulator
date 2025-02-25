@@ -18,7 +18,23 @@
 						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
 					},
 					"name": "Main",
-					"defaultDiagram": true
+					"defaultDiagram": true,
+					"ownedViews": [
+						{
+							"_type": "UMLTextView",
+							"_id": "AAAAAAGVO8w/3VghHaw=",
+							"_parent": {
+								"$ref": "AAAAAAFF+qBtyKM79qY="
+							},
+							"font": "Arial;13;0",
+							"parentStyle": false,
+							"left": 586,
+							"top": 450,
+							"width": 100,
+							"height": 25,
+							"text": "s"
+						}
+					]
 				}
 			]
 		},
@@ -11391,9 +11407,9 @@
 											},
 											"font": "Arial;13;0",
 											"parentStyle": true,
-											"left": 104.72998046875,
+											"left": 102.55908203125,
 											"top": 21,
-											"width": 71.51904296875,
+											"width": 65.34912109375,
 											"height": 13,
 											"text": "History cash"
 										},
@@ -11407,7 +11423,7 @@
 											"parentStyle": true,
 											"left": 85,
 											"top": 21,
-											"width": 13.72998046875,
+											"width": 11.55908203125,
 											"height": 13,
 											"text": "sd"
 										}
@@ -17556,9 +17572,9 @@
 											},
 											"font": "Arial;13;0",
 											"parentStyle": true,
-											"left": 104.72998046875,
+											"left": 102.55908203125,
 											"top": 21,
-											"width": 86.7216796875,
+											"width": 79.06005859375,
 											"height": 13,
 											"text": "PIN generation"
 										},
@@ -17572,7 +17588,7 @@
 											"parentStyle": true,
 											"left": 85,
 											"top": 21,
-											"width": 13.72998046875,
+											"width": 11.55908203125,
 											"height": 13,
 											"text": "sd"
 										}
@@ -21333,9 +21349,9 @@
 											},
 											"font": "Arial;13;0",
 											"parentStyle": true,
-											"left": 104.72998046875,
+											"left": 102.55908203125,
 											"top": 21,
-											"width": 75.14990234375,
+											"width": 66.7900390625,
 											"height": 13,
 											"text": "Deposit cash"
 										},
@@ -21349,7 +21365,7 @@
 											"parentStyle": true,
 											"left": 85,
 											"top": 21,
-											"width": 13.72998046875,
+											"width": 11.55908203125,
 											"height": 13,
 											"text": "sd"
 										}
