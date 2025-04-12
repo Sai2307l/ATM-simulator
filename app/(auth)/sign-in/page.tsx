@@ -14,7 +14,7 @@ export default function Component() {
   return (
     <>
       Not signed in <br />
-      <button onClick={() => signIn("github")}>Sign in using github</button>
+      <button onClick={() => signIn()}>Sign in</button>
     </>
   );
 }
