@@ -2,6 +2,7 @@ import dbConnect from "@/app/lib/dbconnect";
 import UserModel from "@/app/model/User";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/auth-options";
+import sendVerificationEmail from "@/app/helper/verficationemail_password";
 
 export async function POST(request: Request) {
   const { oldPassword, newPassword } = await request.json();
@@ -67,15 +68,33 @@ export async function POST(request: Request) {
       );
     }
     user.new_password = newPassword;
-    user.verifyCode_password= Math.floor(100000 + Math.random() * 900000).toString(); // Generate a new verification code
+    user.verifyCode_password = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString(); // Generate a new verification code
     user.codeExpiry_password = new Date(Date.now() + 10 * 60 * 1000); // Set expiry time to 10 minutes from now
     user.verified_password = false; // Reset verified status
-    
+
     await user.save();
+    const emailResponse = await sendVerificationEmail(
+      user.email,
+      user.username,
+      user.verifyCode_password
+    );
+    if (!emailResponse.success) {
+      return Response.json(
+        {
+          success: false,
+          message: "Error sending verification email",
+        },
+        {
+          status: 500,
+        }
+      );
+    }
     return Response.json(
       {
         success: true,
-        message: "User found",
+        message: "verification code sent to your email",
         data: user,
       },
       {

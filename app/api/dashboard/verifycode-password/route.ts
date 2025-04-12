@@ -1,5 +1,3 @@
-//TODO: Add types for request and response and change the function to async function POST(request: Request, response: Response)
-
 import dbConnect from "@/app/lib/dbconnect";
 import UserModel from "@/app/model/User";
 
@@ -11,20 +9,21 @@ export async function POST(request: Request) {
     const user = await UserModel.findOne({
       username: decodedUser,
       verified: true,
+      verified_password: false,
     });
 
     if (!user) {
       return Response.json(
         {
           success: false,
-          message: "Invalid verification code for password reset",
+          message: "Invalid username or user not verified",
         },
         {
           status: 400,
         }
       );
     }
-    const isCodeValid = user.verifyCode === verifyCode;
+    const isCodeValid = user.verifyCode_password === verifyCode;
     if (!isCodeValid) {
       return Response.json(
         {
@@ -42,7 +41,7 @@ export async function POST(request: Request) {
       return Response.json(
         {
           success: false,
-          message: "Verification code has expired",
+          message: "Verification code has expired. Change your password again",
         },
         {
           status: 400,
@@ -56,7 +55,7 @@ export async function POST(request: Request) {
     user.verified_password = true;
     user.codeExpiry_password = new Date(0);
     await user.save();
-    
+
     return Response.json(
       {
         success: true,
