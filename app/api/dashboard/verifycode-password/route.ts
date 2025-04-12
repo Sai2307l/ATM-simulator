@@ -56,6 +56,7 @@ export async function POST(request: Request) {
     user.verified_password = true;
     user.codeExpiry_password = new Date(0);
     await user.save();
+    
     return Response.json(
       {
         success: true,
