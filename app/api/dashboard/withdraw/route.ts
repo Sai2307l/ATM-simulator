@@ -2,7 +2,8 @@ import dbConnect from "@/app/lib/dbconnect";
 import UserModel from "@/app/model/User";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/auth-options";
-
+import { Transaction } from "@/app/model/User";
+import AtmModel from "@/app/model/Atm";
 export async function POST(Request: Request) {
   const { amount } = await Request.json();
   await dbConnect();
@@ -43,8 +44,39 @@ export async function POST(Request: Request) {
         }
       );
     }
+    // Deduct amount from the user's balance
+    const atm = await AtmModel.findById(1);
+    if (!atm) {
+      return Response.json(
+        {
+          success: false,
+          message: "ATM not found",
+        },
+        {
+          status: 404,
+        }
+      );
+    }
+    if (atm.balance < amount) {
+      return Response.json(
+        {
+          success: false,
+          message: "Insufficient ATM balance",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
     user.balance = user.balance - amount;
-    user.save(); // Deduct amount from the user's balance
+    user.transactions.push({
+      amount: amount,
+      date: new Date(),
+      type: "deposit",
+    } as Transaction);
+    user.save();
+    atm.balance = atm.balance - amount;
+    await atm.save();
     return Response.json(
       {
         success: true,

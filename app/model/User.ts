@@ -1,13 +1,13 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface Transaction extends Document {
-  id: string;
+  type: string;
   amount: number;
   date: Date;
 }
 
 const Transaction: Schema<Transaction> = new Schema({
-  id: { type: String, required: true },
+  type: { type: String, required: true },
   amount: { type: Number, required: true },
   date: { type: Date, required: true },
 });

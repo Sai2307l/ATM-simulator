@@ -3,7 +3,6 @@ import UserModel from "@/app/model/User";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/auth-options";
 
-
 export async function GET() {
   await dbConnect();
   try {

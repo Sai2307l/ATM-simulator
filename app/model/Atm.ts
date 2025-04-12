@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface Atm extends Document {
-  id: string;
+  _id: string;
   balance: number;
   date_of_Servicing: Date;
   machine_status: boolean;
@@ -10,16 +10,16 @@ export interface Atm extends Document {
 }
 
 const AtmSchema: Schema<Atm> = new Schema({
-    id: { type: String, required: true },
-    balance: { type: Number, required: true },
-    date_of_Servicing: { type: Date, required: true },
-    machine_status: { type: Boolean, required: true },
-    location: { type: String, required: true },
-    lastServiced: { type: Date, required: true },
+  _id: { type: String, required: true },
+  balance: { type: Number, required: true },
+  date_of_Servicing: { type: Date, required: true },
+  machine_status: { type: Boolean, required: true },
+  location: { type: String, required: true },
+  lastServiced: { type: Date, required: true },
 });
 
 const AtmModel =
   (mongoose.models.Atm as mongoose.Model<Atm>) ||
-  mongoose.model<Atm>("User", AtmSchema);
+  mongoose.model<Atm>("Atm", AtmSchema);
 
 export default AtmModel;
