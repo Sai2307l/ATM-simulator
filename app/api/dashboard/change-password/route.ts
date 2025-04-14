@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/auth-options";
 import sendVerificationEmail from "@/app/helper/verficationemail_password";
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
 export async function POST(request: Request) {
   const { oldPassword, newPassword } = await request.json();
@@ -45,7 +46,7 @@ export async function POST(request: Request) {
         }
       );
     }
-    const isPasswordValid = user.password === oldPassword;
+    const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
     if (!isPasswordValid) {
       return Response.json(
         {

@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowUpCircleIcon,
   BarChartIcon,
@@ -64,9 +64,29 @@ const data = {
   ],
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar() {
+  const [user, setUser] = useState(data.user);
+  const [navMain, setNavMain] = useState(data.navMain);
+  useEffect(() => {
+    // Simulate fetching user and navMain data
+    const fetchData = async () => {
+      const response = await fetch("/api/dashboard/user");
+      if (!response.ok) {
+        console.error("Failed to fetch user data");
+        return;
+      }
+      const data = await response.json();
+      if (!data.success) {
+        console.error("Failed to fetch user data:", data.message);
+        return;
+      }
+      setUser(data.data);
+      setNavMain(data.navMain);
+    };
+    fetchData();
+  }, []);
   return (
-    <Sidebar collapsible="offcanvas" {...props}>
+    <Sidebar collapsible="offcanvas">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -86,7 +106,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={user} />
       </SidebarFooter>
     </Sidebar>
   );

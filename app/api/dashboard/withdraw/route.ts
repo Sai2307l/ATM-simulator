@@ -45,7 +45,7 @@ export async function POST(Request: Request) {
       );
     }
     // Deduct amount from the user's balance
-    const atm = await AtmModel.findById(1);
+    const atm = await AtmModel.findOne({ _id: "1" });
     if (!atm) {
       return Response.json(
         {
@@ -57,25 +57,25 @@ export async function POST(Request: Request) {
         }
       );
     }
-    if (atm.balance < amount) {
+    if (atm.balance < amount || atm.machine_status) {
       return Response.json(
         {
           success: false,
-          message: "Insufficient ATM balance",
+          message: "Insufficient ATM balance or ATM is out of service",
         },
         {
           status: 400,
         }
       );
     }
-    user.balance = user.balance - amount;
+    user.balance = Number(user.balance) - Number(amount);
     user.transactions.push({
       amount: amount,
       date: new Date(),
-      type: "deposit",
+      type: "withdrawal",
     } as Transaction);
     user.save();
-    atm.balance = atm.balance - amount;
+    atm.balance = Number(atm.balance) - Number(amount);
     await atm.save();
     return Response.json(
       {

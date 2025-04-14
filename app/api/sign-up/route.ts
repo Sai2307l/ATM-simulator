@@ -6,7 +6,9 @@ import sendVerificationEmail from "@/app/helper/verficationemail_password";
 export async function POST(request: Request) {
   await dbConnect();
   try {
-    const { username, email, password } = await request.json();
+    const formData = await request.json();
+    console.log("Form data received:", formData);
+    const { username, email, password } = formData;
     const existingUserVerifiedByUsername = await UserModel.findOne({
       username,
       verified: true,

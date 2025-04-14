@@ -1,28 +1,15 @@
 "use client";
-import { useSession, signIn, signOut } from "next-auth/react";
+
 import { GalleryVerticalEnd } from "lucide-react";
 import { SignupForm } from "@/components/signup-form";
 import Link from "next/link";
-import { FormEvent } from "react";
+
 export default function SignupPage() {
-  async function onSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    const formData = new FormData(event.currentTarget);
-    const response = await fetch("/api/submit", {
-      method: "POST",
-      body: formData,
-    });
-
-    // Handle response if necessary
-    const data = await response.json();
-    // ...
-  }
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="relative hidden bg-muted lg:block">
         <img
-          src="/placeholder.svg"
+          src="/WhatsApp Image 2025-04-14 at 12.09.19_0f789b28.jpg"
           alt="Decorative background"
           className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
         />
@@ -38,7 +25,7 @@ export default function SignupPage() {
         </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
-            <SignupForm onSubmit={onSubmit} />
+            <SignupForm />
           </div>
         </div>
       </div>

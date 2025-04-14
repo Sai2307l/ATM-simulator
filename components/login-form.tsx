@@ -1,14 +1,32 @@
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+"use client";
+import { signIn } from "next-auth/react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import Form from "next/form";
+import { useRouter } from "next/navigation";
 
-export function LoginForm({
-  className,
-  ...props
-}: React.ComponentPropsWithoutRef<"form">) {
+export function LoginForm() {
+  const router = useRouter();
+  async function onSubmit(formData: FormData) {
+    const email = await formData.get("email");
+    const password = await formData.get("password");
+    const body = { email: email, password: password };
+    console.log("Form data:", body);
+    const result = await signIn("credentials", {
+      email: email,
+      password: password,
+      redirect: false,
+    });
+    if (result?.error) {
+      console.error("Error:", result.error);
+    }
+    router.push("/dashboard");
+    // console.log("Result:", result);
+  }
+
   return (
-    <form className={cn("flex flex-col gap-6", className)} {...props}>
+    <Form action={onSubmit} className="flex flex-col gap-6">
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-2xl font-bold">Login to your account</h1>
         <p className="text-balance text-sm text-muted-foreground">
@@ -18,7 +36,12 @@ export function LoginForm({
       <div className="grid gap-6">
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" placeholder="m@example.com" required />
+          <Input
+            name="email"
+            type="email"
+            placeholder="m@example.com"
+            required
+          />
         </div>
         <div className="grid gap-2">
           <div className="flex items-center">
@@ -30,7 +53,7 @@ export function LoginForm({
               Forgot your password?
             </a>
           </div>
-          <Input id="password" type="password" required />
+          <Input name="password" type="password" required />
         </div>
         <Button type="submit" className="w-full">
           Login
@@ -56,6 +79,6 @@ export function LoginForm({
           Sign up
         </a>
       </div>
-    </form>
-  )
+    </Form>
+  );
 }

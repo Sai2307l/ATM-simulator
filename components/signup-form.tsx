@@ -2,13 +2,36 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import Form from "next/form";
+import { useRouter } from "next/navigation";
 
-export function SignupForm({
-  className,
-  ...props
-}: React.ComponentPropsWithoutRef<"form">) {
+export function SignupForm() {
+  const router = useRouter();
+  async function onSubmit(formData: FormData) {
+    const data = await formData.get("username");
+    const email = await formData.get("email");
+    const password = await formData.get("password");
+    const body = { username: data, email, password };
+    console.log("Form data:", body);
+    const response = await fetch("/api/sign-up", {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+    if (!response.ok) {
+      console.error("Failed to submit form", response.statusText);
+      return;
+    }
+    if (response.status === 200) {
+      const data = await response.json();
+      console.log("Form submitted successfully", data);
+    }
+    if (response.status === 401) {
+      console.error("Unauthorized", response.statusText);
+    }
+    router.push("/verifyuser");
+  }
   return (
-    <form className={cn("flex flex-col gap-6", className)} {...props}>
+    <Form className="flex flex-col gap-6" action={onSubmit}>
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-2xl font-bold">
           Signup and Create your own account
@@ -21,7 +44,7 @@ export function SignupForm({
         <div className="grid gap-2">
           <Label htmlFor="username">Username</Label>
           <Input
-            id="username"
+            name="username"
             type="text"
             placeholder="sai2307L...."
             required
@@ -29,13 +52,18 @@ export function SignupForm({
         </div>
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" placeholder="m@example.com" required />
+          <Input
+            name="email"
+            type="email"
+            placeholder="m@example.com"
+            required
+          />
         </div>
         <div className="grid gap-2">
           <div className="flex items-center">
             <Label htmlFor="password">Password</Label>
           </div>
-          <Input id="password" type="password" required />
+          <Input name="password" type="password" required />
         </div>
         <Button type="submit" className="w-full">
           Sign up
@@ -48,10 +76,10 @@ export function SignupForm({
       </div>
       <div className="text-center text-sm">
         already have an account?{" "}
-        <a href="/sign-in" className="underline underline-offset-4">
+        <a href="/sign-in" className="underline underline-offsft-4">
           Sign In
         </a>
       </div>
-    </form>
+    </Form>
   );
 }

@@ -1,13 +1,10 @@
+import AtmModel from "@/app/model/Atm";
 import dbConnect from "@/app/lib/dbconnect";
-import UserModel, { Transaction } from "@/app/model/User";
+import UserModel from "@/app/model/User";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/auth-options";
-import AtmModel from "@/app/model/Atm";
-import mongoose from "mongoose";
-import bcrypt from "bcryptjs";
 
-export async function POST(Request: Request) {
-  const { amount, password } = await Request.json();
+export async function PUT(request: Request) {
   await dbConnect();
   try {
     const session = await getServerSession(authOptions);
@@ -22,8 +19,8 @@ export async function POST(Request: Request) {
         }
       );
     }
-    const userId = new mongoose.Types.ObjectId(session.user._id);
-    const user = await UserModel.findById(userId);
+    const userId = session.user._id;
+    const user = await UserModel.findById(userId).select("-balance");
     if (!user) {
       return Response.json(
         {
@@ -35,18 +32,18 @@ export async function POST(Request: Request) {
         }
       );
     }
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
+    if (user.role !== "service") {
       return Response.json(
         {
           success: false,
-          message: "Incorrect password",
+          message: "Unauthorized",
         },
         {
-          status: 400,
+          status: 403,
         }
       );
     }
+
     const atm = await AtmModel.findById(1);
 
     if (!atm) {
@@ -60,42 +57,24 @@ export async function POST(Request: Request) {
         }
       );
     }
-    if (atm.balance < amount || atm.machine_status) {
-      return Response.json(
-        {
-          success: false,
-          message: "Insufficient ATM balance or ATM is out of service",
-        },
-        {
-          status: 400,
-        }
-      );
-    }
-    atm.balance = Number(atm.balance) + Number(amount);
+
+    atm.machine_status = !atm.machine_status;
     await atm.save();
-    user.balance = Number(user.balance) + Number(amount);
-    user.transactions.push({
-      amount: amount,
-      date: new Date(),
-      type: "deposit",
-    } as Transaction);
-    await user.save();
     return Response.json(
       {
         success: true,
-        message: "User found and balance updated",
-        data: user,
+        message: "ATM details updated successfully",
       },
       {
         status: 200,
       }
     );
   } catch (error) {
-    console.log("Error in get user", error);
+    console.error("Error updating ATM details:", error);
     return Response.json(
       {
         success: false,
-        message: "Error in get user",
+        message: "Internal server error",
       },
       {
         status: 500,

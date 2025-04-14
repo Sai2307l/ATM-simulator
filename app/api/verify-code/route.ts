@@ -5,6 +5,7 @@ export async function POST(request: Request) {
   await dbConnect();
   try {
     const { username, verifyCode } = await request.json();
+    console.log("Form data received:", username, verifyCode);
     const decodedUser = decodeURIComponent(username);
     const user = await UserModel.findOne({
       username: decodedUser,
@@ -14,13 +15,14 @@ export async function POST(request: Request) {
       return Response.json(
         {
           success: false,
-          message: "Invalid verification code",
+          message: "Invalid verification code or username",
         },
         {
           status: 400,
         }
       );
     }
+
     const isCodeValid = user.verifyCode === verifyCode;
     if (!isCodeValid) {
       return Response.json(

@@ -1,5 +1,6 @@
 import dbConnect from "@/app/lib/dbconnect";
 import UserModel from "@/app/model/User";
+import bcrypt from "bcryptjs";
 
 export async function POST(request: Request) {
   await dbConnect();
@@ -9,7 +10,6 @@ export async function POST(request: Request) {
     const user = await UserModel.findOne({
       username: decodedUser,
       verified: true,
-      verified_password: false,
     });
 
     if (!user) {
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
       );
     }
 
-    user.password = user.new_password;
+    user.password = await bcrypt.hash(user.new_password, 10);
     user.new_password = "0000";
     user.verifyCode = "0000";
     user.verified_password = true;

@@ -33,36 +33,13 @@ export async function GET() {
         }
       );
     }
-    const transactions = await UserModel.aggregate([
-      { $match: { _id: userId } },
-      { $unwind: "$transactions" },
-      { $sort: { "transactions.date": -1 } },
-      { $limit: 10 },
-      {
-        $group: {
-          _id: "$_id",
-          transactions: { $push: "$transactions" },
-        },
-      },
-    ]);
-
-    if (!transactions || transactions.length === 0) {
-      return Response.json(
-        {
-          success: false,
-          message: "No transactions found",
-        },
-        {
-          status: 404,
-        }
-      );
-    }
-
+    const user = await UserModel.findById(userId);
+    console.log("User:", user);
     return Response.json(
       {
         success: true,
-        message: "Transaction details fetched successfully",
-        data: transactions,
+        message: "User details fetched successfully",
+        data: user,
       },
       {
         status: 200,

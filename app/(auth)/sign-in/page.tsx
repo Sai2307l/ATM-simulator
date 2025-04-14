@@ -21,7 +21,7 @@ export default function SigninPage() {
       </div>
       <div className="relative hidden bg-muted lg:block">
         <img
-          src="/placeholder.svg"
+          src="/WhatsApp Image 2025-04-14 at 12.09.19_0f789b28.jpg"
           alt="Decorative background"
           className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
         />

@@ -8,8 +8,8 @@ import mongoose from "mongoose";
 export async function POST(request: Request) {
   await dbConnect();
   try {
-    const { id, balance, date_of_Servicing, machine_status, location } =
-      await request.json();
+    const { Id, balance, status, location } = await request.json();
+    console.log("Received data:", { balance, status, location });
     const session = await getServerSession(authOptions);
     if (!session) {
       return Response.json(
@@ -23,7 +23,7 @@ export async function POST(request: Request) {
       );
     }
     const userId = new mongoose.Types.ObjectId(session.user._id);
-    const user = await UserModel.findById(userId).select("-balance");
+    const user = await UserModel.findById(userId);
     if (!user) {
       return Response.json(
         {
@@ -48,11 +48,11 @@ export async function POST(request: Request) {
     }
 
     const atm = new AtmModel({
-      id,
+      _id: Id,
       balance,
-      date_of_Servicing,
-      lastServiced: new Date(),
-      machine_status,
+      date_of_Servicing: Date.now() + 30 * 24 * 60 * 60 * 1000, // 30 days from now
+      lastServiced: Date.now(),
+      machine_status: status,
       location,
     });
 
@@ -96,8 +96,8 @@ export async function GET(request: Request) {
         }
       );
     }
-    const userId = session.user._id;
-    const user = await UserModel.findById(userId).select("-balance");
+    const userId = new mongoose.Types.ObjectId(session.user._id);
+    const user = await UserModel.findById(userId);
     if (!user) {
       return Response.json(
         {
@@ -146,10 +146,9 @@ export async function GET(request: Request) {
   }
 }
 
-export async function PUT(request: Request) {
+export async function PUT() {
   await dbConnect();
   try {
-    const { id, balance, machine_status } = await request.json();
     const session = await getServerSession(authOptions);
     if (!session) {
       return Response.json(
@@ -187,7 +186,7 @@ export async function PUT(request: Request) {
       );
     }
 
-    const atm = await AtmModel.findById(id);
+    const atm = await AtmModel.findById(1);
 
     if (!atm) {
       return Response.json(
@@ -200,10 +199,101 @@ export async function PUT(request: Request) {
         }
       );
     }
-    atm.balance = balance;
-    atm.machine_status = machine_status;
+    if (atm.machine_status === true) {
+      return Response.json(
+        {
+          success: false,
+          message: "Servicing only possible during OFF status",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+    atm.balance = 100000;
+    atm.machine_status = true;
     atm.lastServiced = new Date();
     await atm.save();
+    return Response.json(
+      {
+        success: true,
+        message: "ATM details updated successfully",
+      },
+      {
+        status: 200,
+      }
+    );
+  } catch (error) {
+    console.error("Error updating ATM details:", error);
+    return Response.json(
+      {
+        success: false,
+        message: "Internal server error",
+      },
+      {
+        status: 500,
+      }
+    );
+  }
+}
+
+export async function PATCH() {
+  await dbConnect();
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return Response.json(
+        {
+          success: false,
+          message: "Unauthorized",
+        },
+        {
+          status: 401,
+        }
+      );
+    }
+    const userId = new mongoose.Types.ObjectId(session.user._id);
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      return Response.json(
+        {
+          success: false,
+          message: "User not found",
+        },
+        {
+          status: 404,
+        }
+      );
+    }
+    if (user.role !== "service") {
+      return Response.json(
+        {
+          success: false,
+          message: "Unauthorized",
+        },
+        {
+          status: 403,
+        }
+      );
+    }
+
+    const atm = await AtmModel.findById("1");
+
+    if (!atm) {
+      return Response.json(
+        {
+          success: false,
+          message: "ATM not found",
+        },
+        {
+          status: 404,
+        }
+      );
+    }
+
+    atm.balance = 100000;
+    await atm.save();
+
     return Response.json(
       {
         success: true,

@@ -2,29 +2,44 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import Form from "next/form";
 
-export function WithdrawForm({
-  className,
-  ...props
-}: React.ComponentPropsWithoutRef<"form">) {
+export function WithdrawForm() {
+  async function onSubmit(formData: FormData) {
+    const password = await formData.get("password");
+    const amount = await formData.get("amount");
+    const body = { password: password, amount: amount };
+    console.log("Form data:", body);
+    const response = await fetch("/api/dashboard/withdraw", {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("Error:", errorData.message);
+      return;
+    }
+    const data = await response.json();
+    console.log("Success:", data.message);
+  }
   return (
-    <form className={cn("flex flex-col gap-6", className)} {...props}>
+    <Form className="flex flex-col gap-6" action={onSubmit}>
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-2xl font-bold">Withdraw</h1>
       </div>
       <div className="grid gap-6">
         <div className="grid gap-2">
           <Label htmlFor="password">Password</Label>
-          <Input id="password" type="password" required />
+          <Input name="password" type="password" required />
         </div>
         <div className="grid gap-2">
           <Label htmlFor="amount">Amount</Label>
-          <Input id="amount" type="number" required />
+          <Input name="amount" type="number" required />
         </div>
         <Button type="submit" className="w-full">
           Withdraw
         </Button>
       </div>
-    </form>
+    </Form>
   );
 }
