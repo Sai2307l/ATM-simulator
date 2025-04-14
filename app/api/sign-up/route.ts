@@ -9,7 +9,7 @@ export async function POST(request: Request) {
     const { username, email, password } = await request.json();
     const existingUserVerifiedByUsername = await UserModel.findOne({
       username,
-      isVerified: true,
+      verified: true,
     });
 
     const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
         return Response.json(
           {
             success: false,
-            message: "Userd already exists",
+            message: "User already exists",
           },
           {
             status: 400,
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
         codeExpiry: expiryDate,
         transactions: [],
         verified: false,
-        balance: 0,
+        balance: 1000,
         role: "user",
       });
       await newUser.save();

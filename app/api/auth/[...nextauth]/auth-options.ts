@@ -5,14 +5,13 @@ import UserModel from "@/app/model/User";
 import dbConnect from "@/app/lib/dbconnect";
 import bcrypt from "bcryptjs";
 
-
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       id: "credentials",
       name: "Credentials",
       credentials: {
-        email: { label: "email" },
+        email: { label: "email", type: "text" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials): Promise<any> {
@@ -20,18 +19,18 @@ export const authOptions: NextAuthOptions = {
         try {
           const user = await UserModel.findOne({
             $or: [
-              { email: credentials?.identifier },
-              { username: credentials?.identifier },
+              { email: credentials?.email },
+              // { username: credentials?.email },
             ],
           });
           if (!user) {
             throw new Error("Invalid username or password");
           }
-          if (user.isVerified === false) {
+          if (user.verified === false) {
             throw new Error("Please verify your email before logging in");
           }
           const isPassword = await bcrypt.compare(
-            credentials.password,
+            credentials?.password ?? "",
             user.password
           );
           if (!isPassword) {
@@ -48,6 +47,7 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GITHUB_SECRET ?? "",
     }),
   ],
+
   callbacks: {
     async session({ session, token }) {
       if (token) {

@@ -3,6 +3,7 @@ import UserModel from "@/app/model/User";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/auth-options";
 import sendVerificationEmail from "@/app/helper/verficationemail_password";
+import mongoose from "mongoose";
 
 export async function POST(request: Request) {
   const { oldPassword, newPassword } = await request.json();
@@ -31,7 +32,7 @@ export async function POST(request: Request) {
         }
       );
     }
-    const userId = session.user._id;
+    const userId = new mongoose.Types.ObjectId(session.user._id);
     const user = await UserModel.findById(userId).select("-balance");
     if (!user) {
       return Response.json(

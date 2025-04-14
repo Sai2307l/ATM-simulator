@@ -1,6 +1,5 @@
 import dbConnect from "@/app/lib/dbconnect";
 import UserModel from "@/app/model/User";
-import bcrypt from "bcryptjs";
 
 export async function GET(request: Request) {
   await dbConnect();

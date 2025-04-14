@@ -1,9 +1,9 @@
 import dbConnect from "@/app/lib/dbconnect";
-import UserModel from "@/app/model/User";
+import UserModel, { Transaction } from "@/app/model/User";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/auth-options";
-import { Transaction } from "@/app/model/User";
 import AtmModel from "@/app/model/Atm";
+import mongoose from "mongoose";
 export async function POST(Request: Request) {
   const { amount } = await Request.json();
   await dbConnect();
@@ -20,7 +20,7 @@ export async function POST(Request: Request) {
         }
       );
     }
-    const userId = session.user._id;
+    const userId = new mongoose.Types.ObjectId(session.user._id);
     const user = await UserModel.findById(userId);
     if (!user) {
       return Response.json(

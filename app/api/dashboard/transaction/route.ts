@@ -1,4 +1,3 @@
-import AtmModel from "@/app/model/Atm";
 import dbConnect from "@/app/lib/dbconnect";
 import UserModel from "@/app/model/User";
 import { getServerSession } from "next-auth";
@@ -20,9 +19,8 @@ export async function GET(request: Request) {
         }
       );
     }
-    const user = session.user;
-    const usedId = new mongoose.Types.ObjectId(user._id);
-    if (!user) {
+    const userId = new mongoose.Types.ObjectId(session.user._id);
+    if (!userId) {
       return Response.json(
         {
           success: false,
@@ -33,34 +31,41 @@ export async function GET(request: Request) {
         }
       );
     }
-
-    try {
-      const user = await UserModel.aggregate([
-        { $match: { _id: usedId } },
-        { $unwind: "$transactions" },
-        { $sort: { "transactions.date": -1 } },
-        { $limit: 10 },
-        {
-          $group: {
-            _id: "$_id",
-            transactions: { $push: "$transactions" },
-          },
+    const transactions = await UserModel.aggregate([
+      { $match: { _id: userId } },
+      { $unwind: "$transactions" },
+      { $sort: { "transactions.date": -1 } },
+      { $limit: 10 },
+      {
+        $group: {
+          _id: "$_id",
+          transactions: { $push: "$transactions" },
         },
-      ]);
-      if (!user) {
-        return Response.json(
-          {
-            success: false,
-            message: "User not found",
-          },
-          {
-            status: 404,
-          }
-        );
-      }
-    } catch (error) {
-      console.log(error);
+      },
+    ]);
+
+    if (!transactions || transactions.length === 0) {
+      return Response.json(
+        {
+          success: false,
+          message: "No transactions found",
+        },
+        {
+          status: 404,
+        }
+      );
     }
+
+    return Response.json(
+      {
+        success: true,
+        message: "Transaction details fetched successfully",
+        data: transactions,
+      },
+      {
+        status: 200,
+      }
+    );
   } catch (error) {
     console.log(error);
     return Response.json(
@@ -73,13 +78,4 @@ export async function GET(request: Request) {
       }
     );
   }
-  return Response.json(
-    {
-      success: true,
-      message: "ATM details fetched successfully",
-    },
-    {
-      status: 200,
-    }
-  );
 }
